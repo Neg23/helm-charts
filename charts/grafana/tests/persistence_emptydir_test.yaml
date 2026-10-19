@@ -36,3 +36,17 @@ tests:
             emptyDir:
               medium: Memory
               sizeLimit: 300Mi
+
+  - it: should pass all emptyDir keys to the storage volume
+    set:
+      persistence.emptyDir:
+        medium: Memory
+        sizeLimit: 300Mi
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: storage
+            emptyDir:
+              medium: Memory
+              sizeLimit: 300Mi

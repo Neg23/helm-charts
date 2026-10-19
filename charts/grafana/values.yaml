@@ -592,12 +592,13 @@ persistence:
     # sizeLimit: 300Mi
 
   ## If persistence and inMemory are both disabled, the storage volume
-  ## is an emptyDir on the node's disk. Set sizeLimit to cap its size.
-  ## The pod is evicted if it uses more than this limit.
+  ## is an emptyDir. All keys set here are passed to the emptyDir volume,
+  ## for example sizeLimit or medium.
+  ## ref: https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
   ##
-  emptyDir:
-    # @schema type:[string, integer]
-    sizeLimit: ""
+  emptyDir: {}
+  #  sizeLimit: 1Gi
+  #  medium: Memory
 
   ## If 'lookupVolumeName' is set to true, Helm will attempt to retrieve
   ## the current value of 'spec.volumeName' and incorporate it into the template.

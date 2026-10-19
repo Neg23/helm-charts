@@ -1640,9 +1640,9 @@ volumes:
       sizeLimit: {{ . }}
       {{- end }}
     {{- else }}
-    {{- with .Values.persistence.emptyDir.sizeLimit }}
+    {{- with .Values.persistence.emptyDir }}
     emptyDir:
-      sizeLimit: {{ . }}
+      {{- toYaml . | nindent 6 }}
     {{- else }}
     emptyDir: {}
     {{- end }}
