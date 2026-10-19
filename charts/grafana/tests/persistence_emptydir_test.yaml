@@ -1,5 +1,5 @@
 # $schema: https://raw.githubusercontent.com/helm-unittest/helm-unittest/refs/heads/main/schema/helm-testsuite.json
-suite: grafana storage emptyDir sizeLimit
+suite: grafana storage emptyDir
 templates:
   - deployment.yaml
 
