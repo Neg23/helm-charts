@@ -74,6 +74,18 @@ app.kubernetes.io/name: {{ include "grafana-mcp.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
+{{/*
+Looks if there's an existing secret and reuse its token. If not it generates
+new token and use it.
+*/}}
+{{- define "grafana-mcp.serverToken" -}}
+{{- $secret := (lookup "v1" "Secret" (include "grafana-mcp.namespace" .) (include "grafana-mcp.fullname" .) ) }}
+{{- if $secret }}
+{{- index $secret "data" "server-token" }}
+{{- else }}
+{{- (randAlphaNum 40) | b64enc | quote }}
+{{- end }}
+{{- end }}
 
 {{/*
 Formats imagePullSecrets. Input is (dict "root" . "imagePullSecrets" .{specific imagePullSecrets})
@@ -100,4 +112,24 @@ Return the appropriate apiVersion for Gateway API routes.
 {{- else }}
 {{- print "gateway.networking.k8s.io/v1" }}
 {{- end }}
+{{- end }}
+
+{{/*
+Returns "true" if caller authentication (MCP_GRAFANA_SERVER_TOKEN) is enabled.
+An explicit token or tokenSecret always enables it. Otherwise a token is generated,
+unless serverAuth.token is null or the Authorization header is forwarded to Grafana
+via GRAFANA_FORWARD_HEADERS, which mcp-grafana does not allow together with a server token.
+*/}}
+{{- define "grafana-mcp.serverAuthEnabled" -}}
+{{- $forwardsAuthorization := false -}}
+{{- range (splitList "," (.Values.env.GRAFANA_FORWARD_HEADERS | default "" | toString)) -}}
+{{- if eq (. | trim | lower) "authorization" -}}
+{{- $forwardsAuthorization = true -}}
+{{- end -}}
+{{- end -}}
+{{- if or .Values.serverAuth.tokenSecret.name .Values.serverAuth.token -}}
+true
+{{- else if and (hasKey .Values.serverAuth "token") (not $forwardsAuthorization) -}}
+true
+{{- end -}}
 {{- end }}

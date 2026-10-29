@@ -5,7 +5,6 @@ templates:
 
 set:
   gateway.enabled: false
-  minio.enabled: false
   deploymentMode: Monolithic
   loki.storage.type: s3
   loki.auth_enabled: false
@@ -98,6 +97,16 @@ tests:
         template: NOTES.txt
       - notMatchRegexRaw:
           pattern: "\\* gateway"
+        template: NOTES.txt
+
+  - it: identifies the Envoy gateway implementation
+    set:
+      deploymentMode: Monolithic
+      gateway.enabled: true
+      gateway.type: envoy
+    asserts:
+      - matchRegexRaw:
+          pattern: "Loki has been configured with a gateway \\(envoy\\)"
         template: NOTES.txt
 
   - it: renders multi-tenancy instructions when auth is enabled
